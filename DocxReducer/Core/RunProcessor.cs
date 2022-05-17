@@ -16,11 +16,15 @@ namespace DocxReducer.Core
     // For every new document run processor must be new
     internal class RunProcessor
     {
-        public const int AVERAGE_RUN_STYLE_XML_LENGTH = 40 + 80;
+        public const int EMPTY_RUN_STYLE_LENGTH = 51;
+
+        public const int EMPTY_RUN_PROPERTIES_STYLE_LENGTH = 20;
 
         private Styles DocStyles { get; }
 
         private Dictionary<int, string> _globalRunStylesIds = new Dictionary<int, string>();
+
+        private Dictionary<int, RunProperties> _previousRunProperties = new Dictionary<int, RunProperties>();
 
         public RunProcessor(Styles docStyles)
         {
@@ -119,30 +123,45 @@ namespace DocxReducer.Core
             return styleId;
         }
 
+        private string DeleteXmlnsAttr(string xml)
+        {
+            return Regex.Replace(xml, "xmlns:[^=]*=\"[^\"]*\"", "");
+        }
+
+        private int CalcXmlLengthWithStyle(RunProperties runProperties, int propertiesHash)
+        {
+            var propertiesLength = DeleteXmlnsAttr(runProperties.OuterXml).Length;
+
+            return propertiesLength + EMPTY_RUN_STYLE_LENGTH + 2 * propertiesHash.ToString().Length + EMPTY_RUN_PROPERTIES_STYLE_LENGTH;
+        }
+
         /// <summary>
         /// Checks if style creation for run will reduce length of xml
         /// </summary>
         /// <param name="run"></param>
         /// <returns></returns>
-        public bool IsStyleCreationWorthIt(Run run)
+        public bool IsStyleCreationWorthIt(Run run, int propertiesHash)
         {
             if (run.RunProperties == null)
                 return false;
 
-            var xml = Regex.Replace(run.RunProperties.InnerXml, "xmlns:[^=]*=\"[^\"]*\"", "");
+            var rPrLength = DeleteXmlnsAttr(run.RunProperties.InnerXml).Length;
 
-            // TODO: need style length calculations for run, not average
-            return xml.Length > AVERAGE_RUN_STYLE_XML_LENGTH;
+            // Check if there were properties with this hash
+            // If so then add sum of lengths to rPrLength
+
+            return rPrLength > CalcXmlLengthWithStyle(run.RunProperties, propertiesHash);
         }
 
         public void ReplaceRunPropertiesWithStyleIfNeeded(Run run)
         {
-            if (run == null || run.RunProperties == null)
-                return;
-            if (run.Elements<RunStyle>().Count() != 0 || !IsStyleCreationWorthIt(run))
+            if (run == null || run.RunProperties == null || run.Elements<RunStyle>().Count() > 0)
                 return;
 
             var propertiesHash = run.RunProperties.InnerXml.GetHashCode();
+
+            if (!IsStyleCreationWorthIt(run, propertiesHash))
+                return;
 
             if (!_globalRunStylesIds.TryGetValue(propertiesHash, out string styleId))
                 styleId = CreateGlobalRunStyle(run.RunProperties, propertiesHash);

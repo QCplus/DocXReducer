@@ -91,13 +91,13 @@ namespace DocxReducerTests.Core
         {
             var rPr = new RunProperties(new NoProof());
             var run = DataGenerator.GenerateRun(rPr, " ");
-            Assert.IsFalse(Processor.IsStyleCreationWorthIt(run));
+            Assert.IsFalse(Processor.IsStyleCreationWorthIt(run, 123));
 
             Assert.IsTrue(Processor.IsStyleCreationWorthIt(
-                DataGenerator.GenerateRun("TEXT")
+                DataGenerator.GenerateRun("TEXT"), 1234
                 ));
 
-            Assert.IsFalse(Processor.IsStyleCreationWorthIt(new Run()));
+            Assert.IsFalse(Processor.IsStyleCreationWorthIt(new Run(), 12345));
         }
     }
 }
