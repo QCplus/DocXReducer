@@ -16,35 +16,15 @@ namespace DocxReducer
 
         public bool CreateNewStyles { get; set; }
 
+        private TagDestroyer TagDestroyer { get; }
+
         public Reducer(bool deleteBookmarks=true,
                        bool createNewStyles=true)
         {
             DeleteBookmarks = deleteBookmarks;
             CreateNewStyles = createNewStyles;
-        }
 
-        private void RemoveBookmarks(WordprocessingDocument docx)
-        {
-            var rootElement = docx.MainDocumentPart.RootElement;
-
-            foreach (var bm in rootElement.Descendants<BookmarkStart>())
-            {
-                bm.Remove();
-            }
-
-            foreach (var bm in rootElement.Descendants<BookmarkEnd>())
-            {
-                bm.Remove();
-            }
-        }
-
-        private void RemoveProofErrors(WordprocessingDocument docx)
-        {
-            var proofErrors = docx.MainDocumentPart.RootElement.Descendants<ProofError>().ToList();
-            foreach (var pe in proofErrors)
-            {
-                pe.Remove();
-            }
+            TagDestroyer = new TagDestroyer();
         }
 
         private Styles GetOrCreateNewDocStyles(WordprocessingDocument docx)
@@ -60,10 +40,10 @@ namespace DocxReducer
 
         public void Reduce(WordprocessingDocument docx)
         {
-            RemoveProofErrors(docx);
+            TagDestroyer.RemoveProofErrors(docx);
 
             if (DeleteBookmarks)
-                RemoveBookmarks(docx);
+                TagDestroyer.RemoveBookmarks(docx);
 
             var styles = GetOrCreateNewDocStyles(docx);
 
