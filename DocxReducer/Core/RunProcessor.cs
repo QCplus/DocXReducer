@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 namespace DocxReducer.Core
 {
     // For every new document run processor must be new
-    internal class RunProcessor
+    internal sealed class RunProcessor
     {
         public const int EMPTY_RUN_STYLE_LENGTH = 51;
 

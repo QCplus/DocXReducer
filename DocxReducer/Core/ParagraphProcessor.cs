@@ -13,7 +13,7 @@ using DocumentFormat.OpenXml.Packaging;
 namespace DocxReducer.Core
 {
     // For every new document paragraph processor must be new
-    internal class ParagraphProcessor
+    internal sealed class ParagraphProcessor
     {
         private RunProcessor RunProcessor { get; }
 
