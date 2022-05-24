@@ -55,6 +55,9 @@ namespace DocxReducer.Core
         /// <returns>New base run</returns>
         public Run MergeIfNeeded(Run run1, Run run2)
         {
+            if (run1.GetFirstChild<Text>() == null || run2.GetFirstChild<Text>() == null)
+                return run2;
+
             if (AreEqual(run1.RunProperties, run2.RunProperties))
             {
                 MergeRunToFirst(run1, run2);

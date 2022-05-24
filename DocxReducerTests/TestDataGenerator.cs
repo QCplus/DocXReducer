@@ -7,9 +7,11 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DocxReducerTests
 {
-    class TestDataGenerator
+    internal class TestDataGenerator
     {
-        private RunFonts GenerateUsualRunFonts()
+        public const string DEF_FONT_SIZE = "24";
+
+        private RunFonts GenerateCommonRunFonts()
         {
             return new RunFonts() { Ascii = "Times New Roman", HighAnsi = "Times New Roman", ComplexScript = "Times New Roman" };
         }
@@ -20,9 +22,9 @@ namespace DocxReducerTests
 
             ParagraphMarkRunProperties paragraphMarkRunProperties = new ParagraphMarkRunProperties();
 
-            paragraphMarkRunProperties.Append(GenerateUsualRunFonts());
-            paragraphMarkRunProperties.Append(new FontSize() { Val = "24" });
-            paragraphMarkRunProperties.Append(new FontSizeComplexScript() { Val = "24" });
+            paragraphMarkRunProperties.Append(GenerateCommonRunFonts());
+            paragraphMarkRunProperties.Append(new FontSize() { Val = DEF_FONT_SIZE });
+            paragraphMarkRunProperties.Append(new FontSizeComplexScript() { Val = DEF_FONT_SIZE });
             paragraphMarkRunProperties.Append(new Languages() { Val = "en-US" });
 
             paragraphProperties.Append(paragraphMarkRunProperties);
@@ -33,9 +35,9 @@ namespace DocxReducerTests
         public RunProperties GenerateRunProperties()
         {
             RunProperties runProperties = new RunProperties();
-            runProperties.Append(GenerateUsualRunFonts());
-            runProperties.Append(new FontSize() { Val = "24" });
-            runProperties.Append(new FontSizeComplexScript() { Val = "24" });
+            runProperties.Append(GenerateCommonRunFonts());
+            runProperties.Append(new FontSize() { Val = DEF_FONT_SIZE });
+            runProperties.Append(new FontSizeComplexScript() { Val = DEF_FONT_SIZE });
             runProperties.Append(new Languages() { Val = "en-US" });
 
             return runProperties;
@@ -43,13 +45,10 @@ namespace DocxReducerTests
 
         public RunProperties GenerateRunPropertiesBold()
         {
-            RunProperties runPropertiesBold = new RunProperties();
-            runPropertiesBold.Append(GenerateUsualRunFonts());
+            RunProperties runPropertiesBold = GenerateRunProperties();
+
             runPropertiesBold.Append(new Bold());
             runPropertiesBold.Append(new BoldComplexScript());
-            runPropertiesBold.Append(new FontSize() { Val = "24" });
-            runPropertiesBold.Append(new FontSizeComplexScript() { Val = "24" });
-            runPropertiesBold.Append(new Languages() { Val = "en-US" });
 
             return runPropertiesBold;
         }
@@ -59,10 +58,13 @@ namespace DocxReducerTests
             var run = new Run();
             run.Append(rp);
 
-            var runText = new Text() { Text = text };
-            if (text.StartsWith(' ') || text.EndsWith(' '))
-                runText.Space = SpaceProcessingModeValues.Preserve;
-            run.Append(runText);
+            if (!string.IsNullOrEmpty(text))
+            {
+                var runText = new Text() { Text = text };
+                if (text.StartsWith(' ') || text.EndsWith(' '))
+                    runText.Space = SpaceProcessingModeValues.Preserve;
+                run.Append(runText);
+            }
 
             return run;
         }
@@ -72,6 +74,16 @@ namespace DocxReducerTests
             return GenerateRun(
                 GenerateRunProperties(),
                 text);
+        }
+
+        public Run GenerateRun(params OpenXmlElement[] children)
+        {
+            var run = new Run();
+
+            foreach (var child in children)
+                run.Append(child);
+
+            return run;
         }
     }
 }

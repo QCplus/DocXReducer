@@ -37,8 +37,8 @@ namespace DocxReducer.Core
 
         public void Process(Paragraph par)
         {
-            var runs = par.Elements<Run>().Where(t => t.GetFirstChild<Text>() != null).ToList();
-            if (runs.Count <= 1)
+            var runs = par.Elements<Run>();
+            if (runs.Count() <= 1)
                 return;
 
             var baseRun = runs.FirstOrDefault();

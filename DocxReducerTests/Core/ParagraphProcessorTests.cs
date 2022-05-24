@@ -81,5 +81,21 @@ namespace DocxReducerTests.Core
 
             processor.Process(par);
         }
+
+        [TestMethod]
+        public void ProcessRunsWithTabBetween()
+        {
+            var processor = new ParagraphProcessor(new Styles(), false);
+
+            var par = new Paragraph();
+            par.Append(
+                DataGenerator.GenerateRun("Text"),
+                DataGenerator.GenerateRun(new TabChar()),
+                DataGenerator.GenerateRun("1"));
+
+            processor.Process(par);
+
+            Assert.AreEqual(3, par.Elements<Run>().Count());
+        }
     }
 }
