@@ -37,7 +37,7 @@ namespace DocxReducer.Core
 
         public void Process(Paragraph par)
         {
-            var runs = par.Elements<Run>();
+            var runs = par.Elements<Run>().ToList();
             if (runs.Count() <= 1)
                 return;
 

@@ -62,7 +62,7 @@ namespace DocxReducerTests.Core
             processor.Process(par);
 
             var runs = par.Elements<Run>().ToList();
-            Assert.IsTrue(runs.Count == 3);
+            Assert.AreEqual(3, runs.Count);
 
             Assert.AreEqual("THIS IS A ", runs[0].InnerText);
             Assert.IsTrue(IsTextPreserved(runs[0]));
@@ -90,7 +90,7 @@ namespace DocxReducerTests.Core
             var par = new Paragraph();
             par.Append(
                 DataGenerator.GenerateRun("Text"),
-                DataGenerator.GenerateRun(new TabChar()),
+                DataGenerator.GenerateRun(new TabChar(), new Text() { Text = "t" }),
                 DataGenerator.GenerateRun("1"));
 
             processor.Process(par);
