@@ -57,47 +57,14 @@ namespace DocxReducerTests.Core
         }
 
         [TestMethod]
-        public void TestCreateGlobalRunStyle()
-        {
-            var rPrHash = 123;
-            Styles.Append(new Style()
-            {
-                StyleId = Processor.GenerateNewStyleId(rPrHash)
-            });
-
-            var rPr = DataGenerator.GenerateRunProperties();
-
-            Processor.CreateGlobalRunStyle(rPr, rPrHash);
-
-            var styles = Styles.Descendants<Style>().ToList();
-
-            Assert.IsTrue(styles.Count() == 2);
-            Assert.AreNotEqual(styles[0].StyleId.Value, styles[1].StyleId.Value);
-        }
-
-        [TestMethod]
         public void TestReplaceRunPropertiesWithStyle()
         {
             var run = DataGenerator.GenerateRun("TEXT");
 
-            Processor.ReplaceRunPropertiesWithStyleIfNeeded(run);
+            Processor.ReplaceRunPropertiesWithStyle(run);
 
             Assert.IsNotNull(run.RunProperties.RunStyle);
             Assert.IsTrue(run.RunProperties.ChildElements.Count == 1);
-        }
-
-        [TestMethod]
-        public void TestIsStyleCreationWorthIt()
-        {
-            var rPr = new RunProperties(new NoProof());
-            var run = DataGenerator.GenerateRun(rPr, " ");
-            Assert.IsFalse(Processor.IsStyleCreationWorthIt(run, 123));
-
-            Assert.IsTrue(Processor.IsStyleCreationWorthIt(
-                DataGenerator.GenerateRun("TEXT"), 1234
-                ));
-
-            Assert.IsFalse(Processor.IsStyleCreationWorthIt(new Run(), 12345));
         }
     }
 }

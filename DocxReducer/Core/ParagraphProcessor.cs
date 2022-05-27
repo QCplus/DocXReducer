@@ -32,7 +32,7 @@ namespace DocxReducer.Core
         private void ReplacePropertiesWithStyles(Paragraph par)
         {
             foreach (var r in par.Elements<Run>())
-                RunProcessor.ReplaceRunPropertiesWithStyleIfNeeded(r);
+                RunProcessor.ReplaceRunPropertiesWithStyle(r);
         }
 
         public void Process(Paragraph par)

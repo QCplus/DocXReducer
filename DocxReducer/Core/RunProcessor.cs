@@ -22,13 +22,11 @@ namespace DocxReducer.Core
 
         private Styles DocStyles { get; }
 
-        private Dictionary<int, string> _globalRunStylesIds = new Dictionary<int, string>();
-
-        private Dictionary<int, RunProperties> _previousRunProperties = new Dictionary<int, RunProperties>();
+        private RunStyleCreator RunStyleCreator { get; }
 
         public RunProcessor(Styles docStyles)
         {
-            DocStyles = docStyles;
+            RunStyleCreator = new RunStyleCreator(docStyles);
         }
 
         public bool AreEqual(RunProperties rPr1, RunProperties rPr2)
@@ -70,107 +68,12 @@ namespace DocxReducer.Core
             return run2;
         }
 
-        private StyleRunProperties ConvertRunPropertiesToStyle(RunProperties properties)
-        {
-            var styleProperties = new StyleRunProperties();
-            foreach (var c in properties.Elements())
-                styleProperties.Append(c.CloneNode(true));
-
-            return styleProperties;
-        }
-
-        internal Style ConvertRunPropertiesToStyle(RunProperties runProperties, string styleId)
-        {
-            var styleRunProperties = ConvertRunPropertiesToStyle(runProperties);
-
-            return new Style()
-            {
-                StyleId = styleId,
-                Type = StyleValues.Character,
-                //CustomStyle = true,
-                StyleRunProperties = styleRunProperties
-            };
-        }
-
-        /// <summary>
-        /// Generates StyleId for hash, assuming that StyleId wasn't generated for this hash before
-        /// </summary>
-        /// <param name="runPropertiesHash"></param>
-        /// <returns></returns>
-        internal string GenerateNewStyleId(int runPropertiesHash)
-        {
-            var styleId = $"s{runPropertiesHash}";
-            var createdStylesIds = DocStyles.Descendants<Style>().Where(t => t.StyleId.HasValue).Select(t => t.StyleId.Value);
-
-            while (createdStylesIds.Contains(styleId))
-                styleId += "1";
-
-            return styleId;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="runProperties"></param>
-        /// <param name="generatedHash"></param>
-        /// <returns>Created style id</returns>
-        internal string CreateGlobalRunStyle(RunProperties runProperties, int generatedHash)
-        {
-            var styleId = GenerateNewStyleId(generatedHash);
-
-            DocStyles.Append(
-                ConvertRunPropertiesToStyle(runProperties, styleId));
-
-            _globalRunStylesIds[generatedHash] = styleId;
-
-            return styleId;
-        }
-
-        private string DeleteXmlnsAttr(string xml)
-        {
-            return Regex.Replace(xml, "xmlns:[^=]*=\"[^\"]*\"", "");
-        }
-
-        private int CalcXmlLengthWithStyle(RunProperties runProperties, int propertiesHash)
-        {
-            var propertiesLength = DeleteXmlnsAttr(runProperties.OuterXml).Length;
-
-            return propertiesLength + EMPTY_RUN_STYLE_LENGTH + 2 * propertiesHash.ToString().Length + EMPTY_RUN_PROPERTIES_STYLE_LENGTH;
-        }
-
-        /// <summary>
-        /// Checks if style creation for run will reduce length of xml
-        /// </summary>
-        /// <param name="run"></param>
-        /// <returns></returns>
-        public bool IsStyleCreationWorthIt(Run run, int propertiesHash)
-        {
-            if (run.RunProperties == null)
-                return false;
-
-            var rPrLength = DeleteXmlnsAttr(run.RunProperties.InnerXml).Length;
-
-            // Check if there were properties with this hash
-            // If so then add sum of lengths to rPrLength
-
-            return rPrLength > CalcXmlLengthWithStyle(run.RunProperties, propertiesHash);
-        }
-
-        public void ReplaceRunPropertiesWithStyleIfNeeded(Run run)
+        public void ReplaceRunPropertiesWithStyle(Run run)
         {
             if (run == null || run.RunProperties == null || run.Elements<RunStyle>().Count() > 0)
                 return;
 
-            var propertiesHash = run.RunProperties.InnerXml.GetHashCode();
-
-            if (!IsStyleCreationWorthIt(run, propertiesHash))
-                return;
-
-            if (!_globalRunStylesIds.TryGetValue(propertiesHash, out string styleId))
-                styleId = CreateGlobalRunStyle(run.RunProperties, propertiesHash);
-
-            run.RunProperties.RemoveAllChildren();
-            run.RunProperties.RunStyle = new RunStyle() { Val = styleId };
+            RunStyleCreator.ReplaceRunPropertiesWithStyleIfNeeded(run);
         }
     }
 }
