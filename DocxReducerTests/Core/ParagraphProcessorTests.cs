@@ -15,9 +15,20 @@ namespace DocxReducerTests.Core
     {
         private TestDataGenerator DataGenerator { get; }
 
+        private Styles DocStyles { get; set; }
+
+        private ParagraphProcessor ParProcessor { get; set; }
+
         public ParagraphProcessorTests()
         {
             DataGenerator = new TestDataGenerator();
+        }
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            DocStyles = new Styles();
+            ParProcessor = new ParagraphProcessor(DocStyles, true);
         }
 
         private Run[] GenerateRuns()
@@ -55,11 +66,9 @@ namespace DocxReducerTests.Core
         [TestMethod]
         public void ProcessTest()
         {
-            var processor = new ParagraphProcessor(new Styles(), true);
-
             var par = GenerateParagraph();
 
-            processor.Process(par);
+            ParProcessor.Process(par);
 
             var runs = par.Elements<Run>().ToList();
             Assert.AreEqual(3, runs.Count);
@@ -74,26 +83,22 @@ namespace DocxReducerTests.Core
         [TestMethod]
         public void ProcessWithoutRunsTest()
         {
-            var processor = new ParagraphProcessor(new Styles(), true);
-
             var par = new Paragraph();
             par.Append(DataGenerator.GenerateParagraphProperties());
 
-            processor.Process(par);
+            ParProcessor.Process(par);
         }
 
         [TestMethod]
         public void ProcessRunsWithTabBetween()
         {
-            var processor = new ParagraphProcessor(new Styles(), false);
-
             var par = new Paragraph();
             par.Append(
                 DataGenerator.GenerateRun("Text"),
-                DataGenerator.GenerateRun(new TabChar(), new Text() { Text = "t" }),
+                DataGenerator.GenerateRun(new TabChar()),
                 DataGenerator.GenerateRun("1"));
 
-            processor.Process(par);
+            ParProcessor.Process(par);
 
             Assert.AreEqual(3, par.Elements<Run>().Count());
         }
