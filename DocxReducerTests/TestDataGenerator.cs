@@ -83,6 +83,8 @@ namespace DocxReducerTests
             foreach (var child in children)
                 run.Append(child);
 
+            run.RunProperties = GenerateRunProperties();
+
             return run;
         }
     }

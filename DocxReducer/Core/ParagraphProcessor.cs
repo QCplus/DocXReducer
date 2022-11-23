@@ -41,6 +41,7 @@ namespace DocxReducer.Core
             if (runs.Count() <= 1)
                 return;
 
+            // TODO: make reducing with previous run
             var baseRun = runs.FirstOrDefault();
 
             foreach (var r in runs.Skip(1))

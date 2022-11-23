@@ -16,12 +16,6 @@ namespace DocxReducer.Core
     // For every new document run processor must be new
     internal sealed class RunProcessor
     {
-        public const int EMPTY_RUN_STYLE_LENGTH = 51;
-
-        public const int EMPTY_RUN_PROPERTIES_STYLE_LENGTH = 20;
-
-        private Styles DocStyles { get; }
-
         private RunStyleCreator RunStyleCreator { get; }
 
         public RunProcessor(Styles docStyles)
@@ -35,14 +29,45 @@ namespace DocxReducer.Core
             return (rPr1 == null && rPr2 == null) || !(rPr1 == null ^ rPr2 == null) && rPr1.InnerXml == rPr2.InnerXml;
         }
 
-        internal void MergeRunToFirst(Run run1, Run run2)
+        private Text MoveChildren(Run target, Run source)
         {
-            var runText = run2.GetFirstChild<Text>();
+            var children = source.ChildElements.Where(elem => 
+                elem.GetType() != typeof(Text) && 
+                elem.GetType() != typeof(RunProperties)
+                ).ToList();
 
-            run1.GetFirstChild<Text>().Text += runText.Text;
+            var runText = source.GetFirstChild<Text>();
 
-            if (runText.Space != null && runText.Space.Value == SpaceProcessingModeValues.Preserve)
-                run1.GetFirstChild<Text>().Space = SpaceProcessingModeValues.Preserve;
+            source.RemoveAllChildren();
+
+            target.Append(children);
+
+            return runText;
+        }
+
+        internal void MergeRunToFirst(Run targetRun, Run sourceRun)
+        {
+            var runText = MoveChildren(targetRun, sourceRun);
+
+            if (runText != null)
+            {
+                targetRun.Append(new Text(runText.Text));
+
+                if (runText?.Space != null && runText.Space.Value == SpaceProcessingModeValues.Preserve)
+                    targetRun.GetFirstChild<Text>().Space = SpaceProcessingModeValues.Preserve;
+            }
+        }
+
+        internal bool HasExtraElement(Run run)
+        {
+            return run.Elements().Where(
+                t => typeof(Text) != t.GetType() && typeof(RunProperties) != t.GetType()
+                ).Count() > 0;
+        }
+
+        internal bool CanMerge(Run run1, Run run2)
+        {
+            return AreEqual(run1.RunProperties, run2.RunProperties);
         }
 
         /// <summary>
@@ -53,10 +78,7 @@ namespace DocxReducer.Core
         /// <returns>New base run</returns>
         public Run MergeIfNeeded(Run run1, Run run2)
         {
-            if (run1.GetFirstChild<Text>() == null || run2.GetFirstChild<Text>() == null)
-                return run2;
-
-            if (AreEqual(run1.RunProperties, run2.RunProperties))
+            if (CanMerge(run1, run2))
             {
                 MergeRunToFirst(run1, run2);
 

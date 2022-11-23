@@ -92,15 +92,62 @@ namespace DocxReducerTests.Core
         [TestMethod]
         public void ProcessRunsWithTabBetween()
         {
-            var par = new Paragraph();
-            par.Append(
-                DataGenerator.GenerateRun("Text"),
+            var par = new Paragraph(
+                DataGenerator.GenerateRun("TEXT"),
                 DataGenerator.GenerateRun(new TabChar()),
                 DataGenerator.GenerateRun("1"));
 
             ParProcessor.Process(par);
 
-            Assert.AreEqual(3, par.Elements<Run>().Count());
+            /* Should be
+             *  <w:r>
+			 *      <w:rPr>
+			 *          <w:lang w:val="en-US"/>
+			 *      </w:rPr>
+			 *      <w:t>TEXT</w:t>
+			 *      <w:tab/>
+			 *      <w:t>1</w:t>
+			 *  </w:r>
+             */
+
+            Assert.AreEqual(1, par.ChildElements.Count);
+
+            var run = par.GetFirstChild<Run>();
+            Assert.AreEqual(4,                  run.ChildElements.Count);
+            Assert.AreEqual("TEXT",             run.ElementAt(1).InnerText);
+            Assert.AreEqual(typeof(TabChar),    run.ElementAt(2).GetType());
+            Assert.AreEqual("1",                run.ElementAt(3).InnerText);
+        }
+
+        [TestMethod]
+        public void ProcessRunsWithTabText()
+        {
+            var par = new Paragraph();
+            par.Append(
+                DataGenerator.GenerateRun("TEXT"),
+                DataGenerator.GenerateRun(new TabChar(), new Text { Text = "1" })
+                );
+
+            ParProcessor.Process(par);
+
+            /*
+             *  <w:r>
+             *      <w:rPr>
+             *          <w:lang w:val="en-US"/>
+             *      </w:rPr>
+             *      <w:t>TEXT</w:t>
+             *      <w:tab/>
+             *      <w:t>1</w:t>
+             *  </w:r>
+             */
+
+            Assert.AreEqual(1, par.ChildElements.Count);
+
+            var run = par.GetFirstChild<Run>();
+            Assert.AreEqual(4,                  run.ChildElements.Count);
+            Assert.AreEqual("TEXT",             run.ElementAt(1).InnerText);
+            Assert.AreEqual(typeof(TabChar),    run.ElementAt(2).GetType());
+            Assert.AreEqual("1",                run.ElementAt(3).InnerText);
         }
     }
 }
