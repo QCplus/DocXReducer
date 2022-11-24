@@ -47,8 +47,8 @@ namespace DocxReducerTests.Core
 
         private Paragraph GenerateParagraph()
         {
-            Paragraph paragraph1 = new Paragraph();
-            paragraph1.Append(DataGenerator.GenerateParagraphProperties());
+            Paragraph paragraph1 = new Paragraph(
+                DataGenerator.GenerateParagraphProperties());
 
             foreach (var r in GenerateRuns())
                 paragraph1.Append(r);
@@ -102,7 +102,7 @@ namespace DocxReducerTests.Core
             /* Should be
              *  <w:r>
 			 *      <w:rPr>
-			 *          <w:lang w:val="en-US"/>
+			 *          ...
 			 *      </w:rPr>
 			 *      <w:t>TEXT</w:t>
 			 *      <w:tab/>
@@ -122,10 +122,11 @@ namespace DocxReducerTests.Core
         [TestMethod]
         public void ProcessRunsWithTabText()
         {
-            var par = new Paragraph();
-            par.Append(
+            var par = new Paragraph(
                 DataGenerator.GenerateRun("TEXT"),
-                DataGenerator.GenerateRun(new TabChar(), new Text { Text = "1" })
+                DataGenerator.GenerateRun(
+                    new TabChar(),
+                    new Text("1"))
                 );
 
             ParProcessor.Process(par);
@@ -133,7 +134,7 @@ namespace DocxReducerTests.Core
             /*
              *  <w:r>
              *      <w:rPr>
-             *          <w:lang w:val="en-US"/>
+             *          ...
              *      </w:rPr>
              *      <w:t>TEXT</w:t>
              *      <w:tab/>

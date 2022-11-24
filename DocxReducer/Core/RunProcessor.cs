@@ -1,12 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
-using System.Text.RegularExpressions;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("DocxReducerTests")]
