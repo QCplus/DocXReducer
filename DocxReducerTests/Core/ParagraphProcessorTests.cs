@@ -149,5 +149,31 @@ namespace DocxReducerTests.Core
             Assert.AreEqual(typeof(TabChar),    run.ElementAt(2).GetType());
             Assert.AreEqual("1",                run.ElementAt(3).InnerText);
         }
+
+        [TestMethod]
+        public void FirstRunWithoutText()
+        {
+            var par = new Paragraph(
+                DataGenerator.GenerateRun(),
+                DataGenerator.GenerateRun("TEXT"));
+
+            ParProcessor.Process(par);
+
+            Assert.AreEqual(1, par.ChildElements.Count);
+            Assert.AreEqual("TEXT", par.GetFirstChild<Run>().InnerText);
+        }
+
+        [TestMethod]
+        public void SecondRunWithoutText()
+        {
+            var par = new Paragraph(
+                DataGenerator.GenerateRun("TEXT"),
+                DataGenerator.GenerateRun());
+
+            ParProcessor.Process(par);
+
+            Assert.AreEqual(1, par.ChildElements.Count);
+            Assert.AreEqual("TEXT", par.GetFirstChild<Run>().InnerText);
+        }
     }
 }
