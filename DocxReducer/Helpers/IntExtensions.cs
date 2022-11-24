@@ -6,16 +6,12 @@ namespace DocxReducer.Helpers
     {
         public static string GetLastNDigits(this int number, int n)
         {
-            if (number == 0)
-                return "0";
+            if (n <= 0)
+                return "";
 
-            string digits = "";
-            number = Math.Abs(number);
+            var digits = Math.Abs(number).ToString();
 
-            for (int i = 0; i < n && number > 0; i++, number /= 10)
-                digits = (number % 10).ToString() + digits;
-
-            return digits;
+            return digits.Substring(Math.Max(digits.Length - n, 0));
         }
     }
 }
