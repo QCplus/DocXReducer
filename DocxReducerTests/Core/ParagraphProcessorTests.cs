@@ -90,7 +90,7 @@ namespace DocxReducerTests.Core
         }
 
         [TestMethod]
-        public void ProcessRunsWithTabBetween()
+        public void Process_TabCharBetweenTwoRuns()
         {
             var par = new Paragraph(
                 DataGenerator.GenerateRun("TEXT"),

@@ -42,13 +42,18 @@ namespace DocxReducer.Core
 
         internal void MergeRunToFirst(Run targetRun, Run sourceRun)
         {
-            var runText = MoveChildren(targetRun, sourceRun);
+            Text sourceRunText = MoveChildren(targetRun, sourceRun);
 
-            if (runText != null)
+            if (sourceRunText != null)
             {
-                targetRun.Append(new Text(runText.Text));
+                var targetRunLastChild = targetRun.LastChild;
 
-                if (runText?.Space != null && runText.Space.Value == SpaceProcessingModeValues.Preserve)
+                if (targetRunLastChild == null || targetRunLastChild.GetType() != typeof(Text))
+                    targetRun.Append(sourceRunText);
+                else
+                    (targetRunLastChild as Text).Text += sourceRunText.Text;
+
+                if (sourceRunText?.Space != null && sourceRunText.Space.Value == SpaceProcessingModeValues.Preserve)
                     targetRun.GetFirstChild<Text>().Space = SpaceProcessingModeValues.Preserve;
             }
         }
