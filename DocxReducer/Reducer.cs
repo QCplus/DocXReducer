@@ -1,30 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-
+using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
+using DocxReducer.Options;
 
 namespace DocxReducer
 {
     public class Reducer
     {
-        public bool DeleteBookmarks { get; set; }
+        public ReducerOptions Options { get; set; }
 
-        public bool CreateNewStyles { get; set; }
-
-        private TagsDestroyer TagDestroyer { get; }
-
-        public Reducer(bool deleteBookmarks=true,
-                       bool createNewStyles=true)
+        public Reducer(bool deleteBookmarks = true,
+                       bool createNewStyles = true)
         {
-            DeleteBookmarks = deleteBookmarks;
-            CreateNewStyles = createNewStyles;
-
-            TagDestroyer = new TagsDestroyer();
+            Options = new ReducerOptions(
+                deleteBookmarks: deleteBookmarks,
+                createNewStyles: createNewStyles);
         }
 
         private Styles GetOrCreateNewDocStyles(WordprocessingDocument docx)
@@ -42,15 +33,10 @@ namespace DocxReducer
         {
             var docRoot = docx.MainDocumentPart.RootElement;
 
-            TagDestroyer.RemoveProofErrors(docRoot);
-
-            if (DeleteBookmarks)
-                TagDestroyer.RemoveBookmarks(docRoot);
-
             var styles = GetOrCreateNewDocStyles(docx);
 
             // For every new document paragraph processor must be new
-            new ParagraphProcessor(styles, CreateNewStyles).ProcessAllParagraphs(docx);
+            new ParagraphProcessor(styles, Options).ProcessAllParagraphs(docRoot);
         }
 
         public WordprocessingDocument Reduce(string pathToFile)

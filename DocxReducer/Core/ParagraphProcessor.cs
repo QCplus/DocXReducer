@@ -3,33 +3,48 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
+using DocxReducer.Options;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("DocxReducerTests")]
 #endif
 namespace DocxReducer.Core
 {
-    // For every new document paragraph processor must be new
+    /// <summary>
+    /// For every new document paragraph processor must be new
+    /// </summary>
     internal sealed class ParagraphProcessor
     {
         private RunProcessor RunProcessor { get; }
 
-        private bool CreateNewStyles { get; }
+        private ParagraphProcessorOptions Options { get; }
 
-        public ParagraphProcessor(Styles docStyles, bool createNewStyles)
+        public ParagraphProcessor(Styles docStyles, ReducerOptions reducerOptions)
         {
             if (docStyles == null)
                 throw new Exception("Document styles can't be null");
 
             RunProcessor = new RunProcessor(docStyles);
 
-            CreateNewStyles = createNewStyles;
+            Options = new ParagraphProcessorOptions(reducerOptions);
         }
 
         private void ReplacePropertiesWithStyles(Paragraph par)
         {
             foreach (var r in par.Elements<Run>())
                 RunProcessor.ReplaceRunPropertiesWithStyle(r);
+        }
+
+        private void RemoveIfNecessary(OpenXmlElement element)
+        {
+            var type = element.GetType();
+
+            if (type == typeof(BookmarkStart) || type == typeof(BookmarkEnd))
+                if (Options.DeleteBookmarks)
+                    element.Remove();
+            else if (type == typeof(ProofError))
+                    element.Remove();
         }
 
         public void Process(Paragraph par)
@@ -52,20 +67,27 @@ namespace DocxReducer.Core
                 else
                 {
                     baseRun = null;
+
+                    RemoveIfNecessary(child);
                 }
             }
 
             // NOTE: little file in zip can be bigger than big file. Zip compression nuance?
-            if (CreateNewStyles)
+            if (Options.CreateNewStyles)
                 ReplacePropertiesWithStyles(par);
+        }
+
+        public void ProcessAllParagraphs(OpenXmlPartRootElement root)
+        {
+            foreach (var p in root.Descendants<Paragraph>())
+            {
+                Process(p);
+            }
         }
 
         public void ProcessAllParagraphs(WordprocessingDocument docx)
         {
-            foreach (var p in docx.MainDocumentPart.RootElement.Descendants<Paragraph>())
-            {
-                Process(p);
-            }
+            ProcessAllParagraphs(docx.MainDocumentPart.RootElement);
         }
     }
 }

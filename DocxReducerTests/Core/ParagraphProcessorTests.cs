@@ -25,7 +25,12 @@ namespace DocxReducerTests.Core
         public void TestInit()
         {
             DocStyles = new Styles();
-            ParProcessor = new ParagraphProcessor(DocStyles, true);
+            ParProcessor = new ParagraphProcessor(DocStyles,
+                new DocxReducer.Options.ReducerOptions()
+                {
+                    CreateNewStyles = true,
+                    DeleteBookmarks = true
+                });
         }
 
         private Run[] GenerateRuns()
@@ -204,6 +209,24 @@ namespace DocxReducerTests.Core
             Assert.AreEqual(3, par.ChildElements.Count);
 
             Assert.AreEqual(typeof(OMath), par.ElementAt(1).GetType());
+        }
+
+        [TestMethod]
+        public void Process_AllBookmarksWereRemoved()
+        {
+            var par = Process(@"
+                <w:p w14:paraId=""0334E79D"" w14:textId=""1C39F1F7"" xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"" xmlns:w14=""http://schemas.microsoft.com/office/word/2010/wordml"">
+                  <w:bookmarkStart w:name=""_Toc517125172"" w:id=""13"" />
+                  <w:bookmarkStart w:name=""_Toc517125298"" w:id=""14"" />
+                  <w:r>
+                    <w:t>TEXT</w:t>
+                  </w:r>
+                  <w:bookmarkEnd w:id=""13"" />
+                  <w:bookmarkEnd w:id=""14"" />
+                </w:p>");
+
+            Assert.AreEqual(0, par.Descendants<BookmarkStart>().Count());
+            Assert.AreEqual(0, par.Descendants<BookmarkEnd>().Count());
         }
     }
 }
