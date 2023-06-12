@@ -13,9 +13,9 @@ namespace DocxReducer.Core
     {
         private RunStyleCreator RunStyleCreator { get; }
 
-        public RunProcessor(Styles docStyles)
+        public RunProcessor(RunStyleCreator runStyleCreator)
         {
-            RunStyleCreator = new RunStyleCreator(docStyles);
+            RunStyleCreator = runStyleCreator;
         }
 
         public bool AreEqual(RunProperties rPr1, RunProperties rPr2)

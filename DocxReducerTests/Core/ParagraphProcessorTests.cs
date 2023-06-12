@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
@@ -12,7 +13,9 @@ namespace DocxReducerTests.Core
     {
         private TestDataGenerator DataGenerator { get; }
 
-        private Styles DocStyles { get; set; }
+        private Styles StylesRoot { get; set; }
+
+        private IEnumerable<string> StyleIds => StylesRoot.Elements<Style>().Select(s => s.StyleId.ToString());
 
         private ParagraphProcessor ParProcessor { get; set; }
 
@@ -24,8 +27,8 @@ namespace DocxReducerTests.Core
         [TestInitialize]
         public void TestInit()
         {
-            DocStyles = new Styles();
-            ParProcessor = new ParagraphProcessor(DocStyles,
+            StylesRoot = new Styles();
+            ParProcessor = new ParagraphProcessor(StylesRoot,
                 new DocxReducer.Options.ReducerOptions()
                 {
                     CreateNewStyles = true,
@@ -248,6 +251,36 @@ namespace DocxReducerTests.Core
 
             Assert.AreEqual(0, par.GetAttributes().Count());
             Assert.AreEqual(0, par.Descendants<Run>().Where(r => r.HasAttributes).Count());
+        }
+
+        [TestMethod]
+        public void Process_StylesWereSavedBetweenParagraphs()
+        {
+            var par1 = new Paragraph(@"
+                <w:p xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"">
+                  <w:r>
+                    <w:rPr>
+                      <w:color w:val=""2B95FF"" />
+                      <w:sz w:val=""18"" />
+                    </w:rPr>
+                    <w:t>TEXT</w:t>
+                  </w:r>
+                  <w:r>
+                    <w:rPr>
+                      <w:color w:val=""2B91AF"" />
+                      <w:sz w:val=""19"" />
+                    </w:rPr>
+                    <w:t xml:space=""preserve""> TEXT</w:t>
+                  </w:r>
+                </w:p>");
+            var par2 = (Paragraph)par1.CloneNode(true);
+
+            ParProcessor.Process(par1);
+            ParProcessor.Process(par2);
+
+            Assert.AreEqual(2, StylesRoot.ChildElements.Count);
+            Assert.That.AllRunStylesDefined(par1, StyleIds);
+            Assert.That.AllRunStylesDefined(par2, StyleIds);
         }
     }
 }
