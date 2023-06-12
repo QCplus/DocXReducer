@@ -1,12 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using System.Linq;
 using DocumentFormat.OpenXml;
-
+using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OMath = DocumentFormat.OpenXml.Math.OfficeMath;
 
 namespace DocxReducerTests.Core
 {
@@ -113,10 +110,10 @@ namespace DocxReducerTests.Core
             Assert.AreEqual(1, par.ChildElements.Count);
 
             var run = par.GetFirstChild<Run>();
-            Assert.AreEqual(4,                  run.ChildElements.Count);
-            Assert.AreEqual("TEXT",             run.ElementAt(1).InnerText);
-            Assert.AreEqual(typeof(TabChar),    run.ElementAt(2).GetType());
-            Assert.AreEqual("1",                run.ElementAt(3).InnerText);
+            Assert.AreEqual(4, run.ChildElements.Count);
+            Assert.AreEqual("TEXT", run.ElementAt(1).InnerText);
+            Assert.AreEqual(typeof(TabChar), run.ElementAt(2).GetType());
+            Assert.AreEqual("1", run.ElementAt(3).InnerText);
         }
 
         [TestMethod]
@@ -145,10 +142,10 @@ namespace DocxReducerTests.Core
             Assert.AreEqual(1, par.ChildElements.Count);
 
             var run = par.GetFirstChild<Run>();
-            Assert.AreEqual(4,                  run.ChildElements.Count);
-            Assert.AreEqual("TEXT",             run.ElementAt(1).InnerText);
-            Assert.AreEqual(typeof(TabChar),    run.ElementAt(2).GetType());
-            Assert.AreEqual("1",                run.ElementAt(3).InnerText);
+            Assert.AreEqual(4, run.ChildElements.Count);
+            Assert.AreEqual("TEXT", run.ElementAt(1).InnerText);
+            Assert.AreEqual(typeof(TabChar), run.ElementAt(2).GetType());
+            Assert.AreEqual("1", run.ElementAt(3).InnerText);
         }
 
         [TestMethod]
@@ -175,6 +172,38 @@ namespace DocxReducerTests.Core
 
             Assert.AreEqual(1, par.ChildElements.Count);
             Assert.AreEqual("TEXT", par.GetFirstChild<Run>().InnerText);
+        }
+
+        private Paragraph Process(string xml)
+        {
+            var par = new Paragraph(xml);
+
+            ParProcessor.Process(par);
+
+            return par;
+        }
+
+        [TestMethod]
+        public void Process_MathFormulaKeepPositionBetweenRuns()
+        {
+            var par = Process(@"
+                <w:p w:rsidR=""008D5083"" xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"">
+                  <w:r>
+                    <w:t xml:space=""preserve"">Complexity is </w:t>
+                  </w:r>
+                  <m:oMath xmlns:m=""http://schemas.openxmlformats.org/officeDocument/2006/math"">
+                    <m:r>
+                      <m:t>O</m:t>
+                    </m:r>
+                  </m:oMath>
+                  <w:r>
+                    <w:t xml:space=""preserve""> complexity</w:t>
+                  </w:r>
+                </w:p>");
+
+            Assert.AreEqual(3, par.ChildElements.Count);
+
+            Assert.AreEqual(typeof(OMath), par.ElementAt(1).GetType());
         }
     }
 }

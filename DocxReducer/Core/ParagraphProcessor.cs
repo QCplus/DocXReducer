@@ -34,16 +34,25 @@ namespace DocxReducer.Core
 
         public void Process(Paragraph par)
         {
-            var runs = par.Elements<Run>().ToList();
-            if (runs.Count() <= 1)
-                return;
+            var children = par.ChildElements.ToList();
+            Run baseRun = null;
 
-            // TODO: make reducing with previous run
-            var baseRun = runs.FirstOrDefault();
-
-            foreach (var r in runs.Skip(1))
+            foreach (var child in children)
             {
-                baseRun = RunProcessor.MergeIfNeeded(baseRun, r);
+                if (child is Run parRun)
+                {
+                    if (baseRun == null)
+                    {
+                        baseRun = parRun;
+                        continue;
+                    }
+
+                    baseRun = RunProcessor.MergeIfNeeded(baseRun, parRun);
+                }
+                else
+                {
+                    baseRun = null;
+                }
             }
 
             // NOTE: little file in zip can be bigger than big file. Zip compression nuance?
