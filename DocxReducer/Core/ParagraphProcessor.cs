@@ -49,6 +49,8 @@ namespace DocxReducer.Core
 
         public void Process(Paragraph par)
         {
+            par.ClearAllAttributes();
+
             var children = par.ChildElements.ToList();
             Run baseRun = null;
 
@@ -56,6 +58,8 @@ namespace DocxReducer.Core
             {
                 if (child is Run parRun)
                 {
+                    child.ClearAllAttributes();
+
                     if (baseRun == null)
                     {
                         baseRun = parRun;

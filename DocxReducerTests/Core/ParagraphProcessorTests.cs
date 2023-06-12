@@ -228,5 +228,26 @@ namespace DocxReducerTests.Core
             Assert.AreEqual(0, par.Descendants<BookmarkStart>().Count());
             Assert.AreEqual(0, par.Descendants<BookmarkEnd>().Count());
         }
+
+        [TestMethod]
+        public void Process_AllRsidsWereRemoved()
+        {
+            var par = Process(@"
+                <w:p w:rsidRPr=""00D20A94"" w:rsidR=""00D20A94"" xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"">
+                  <w:r w:rsidRPr=""00D20A94"">
+                    <w:t>TEXT</w:t>
+                  </w:r>
+                  <w:r w:rsidRPr=""00D20A94"">
+                    <w:rPr>
+                      <w:color w:val=""2B91AF"" />
+                      <w:sz w:val=""19"" />
+                    </w:rPr>
+                    <w:t xml:space=""preserve""> TEXT</w:t>
+                  </w:r>
+                </w:p>");
+
+            Assert.AreEqual(0, par.GetAttributes().Count());
+            Assert.AreEqual(0, par.Descendants<Run>().Where(r => r.HasAttributes).Count());
+        }
     }
 }
