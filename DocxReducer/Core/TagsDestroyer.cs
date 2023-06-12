@@ -1,30 +1,27 @@
 ﻿using System.Linq;
-
-using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DocxReducer.Core
 {
     internal class TagsDestroyer
     {
-        public void RemoveBookmarks(WordprocessingDocument docx)
+        public void RemoveBookmarks(OpenXmlPartRootElement docRoot)
         {
-            var rootElement = docx.MainDocumentPart.RootElement;
-
-            foreach (var bm in rootElement.Descendants<BookmarkStart>())
+            foreach (var bm in docRoot.Descendants<BookmarkStart>())
             {
                 bm.Remove();
             }
 
-            foreach (var bm in rootElement.Descendants<BookmarkEnd>())
+            foreach (var bm in docRoot.Descendants<BookmarkEnd>())
             {
                 bm.Remove();
             }
         }
 
-        public void RemoveProofErrors(WordprocessingDocument docx)
+        public void RemoveProofErrors(OpenXmlPartRootElement docRoot)
         {
-            var proofErrors = docx.MainDocumentPart.RootElement.Descendants<ProofError>().ToList();
+            var proofErrors = docRoot.Descendants<ProofError>().ToList();
 
             foreach (var pe in proofErrors)
             {

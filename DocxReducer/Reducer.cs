@@ -40,10 +40,12 @@ namespace DocxReducer
 
         public void Reduce(WordprocessingDocument docx)
         {
-            TagDestroyer.RemoveProofErrors(docx);
+            var docRoot = docx.MainDocumentPart.RootElement;
+
+            TagDestroyer.RemoveProofErrors(docRoot);
 
             if (DeleteBookmarks)
-                TagDestroyer.RemoveBookmarks(docx);
+                TagDestroyer.RemoveBookmarks(docRoot);
 
             var styles = GetOrCreateNewDocStyles(docx);
 
