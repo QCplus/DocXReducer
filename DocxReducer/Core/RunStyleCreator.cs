@@ -57,23 +57,23 @@ namespace DocxReducer.Core
                 target.Append(c.CloneNode(true));
         }
 
-        /// <summary>
-        /// Generates StyleId for hash, assuming that StyleId wasn't generated for this hash before
-        /// </summary>
-        /// <param name="runPropertiesHash"></param>
-        /// <returns></returns>
         internal string GenerateStyleId(int runPropertiesHash)
         {
             if (_globalRunStylesIds.TryGetValue(runPropertiesHash, out string styleId))
                 return styleId;
 
-            styleId = $"s{runPropertiesHash.GetLastNDigits(2)}";
-
             var createdStylesIds = DocStyles.Descendants<Style>().Where(t => t.StyleId.HasValue).Select(t => t.StyleId.Value);
-            while (createdStylesIds.Contains(styleId))
-                styleId += "1";
+            int charsPoolCount = IntExtensions.CHARS_FOR_BASE_CONVERSION.Length;
 
-            return styleId;
+            for (int maxBits = 10; maxBits <= 32 ; maxBits++)
+            {
+                styleId = runPropertiesHash.TakeFirstBits(maxBits).ToBase(charsPoolCount);
+
+                if (!createdStylesIds.Contains(styleId))
+                    return styleId;
+            }
+
+            throw new Exception("Max int bits overflow");
         }
 
         internal Style CreateStyleForRun(RunProperties runProperties, int propertiesHash)
