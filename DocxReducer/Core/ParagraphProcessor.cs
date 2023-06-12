@@ -37,15 +37,45 @@ namespace DocxReducer.Core
                 RunProcessor.ReplaceRunPropertiesWithStyle(r);
         }
 
-        private void RemoveIfNecessary(OpenXmlElement element)
+        private bool NeedToBeRemoved(OpenXmlElement element)
         {
             var type = element.GetType();
 
             if (type == typeof(BookmarkStart) || type == typeof(BookmarkEnd))
-                if (Options.DeleteBookmarks)
-                    element.Remove();
+            {
+                return Options.DeleteBookmarks;
+            }
             else if (type == typeof(ProofError))
-                    element.Remove();
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseRun"></param>
+        /// <param name="nextElement"></param>
+        /// <returns>New base run</returns>
+        private Run Process(Run baseRun, OpenXmlElement nextElement)
+        {
+            if (nextElement is Run parRun)
+            {
+                nextElement.ClearAllAttributes();
+
+                return baseRun == null
+                    ? parRun
+                    : RunProcessor.MergeIfNeeded(baseRun, parRun);
+            }
+            else
+            {
+                if (NeedToBeRemoved(nextElement))
+                    nextElement.Remove();
+
+                return null;
+            }
         }
 
         public void Process(Paragraph par)
@@ -57,24 +87,7 @@ namespace DocxReducer.Core
 
             foreach (var child in children)
             {
-                if (child is Run parRun)
-                {
-                    child.ClearAllAttributes();
-
-                    if (baseRun == null)
-                    {
-                        baseRun = parRun;
-                        continue;
-                    }
-
-                    baseRun = RunProcessor.MergeIfNeeded(baseRun, parRun);
-                }
-                else
-                {
-                    baseRun = null;
-
-                    RemoveIfNecessary(child);
-                }
+                baseRun = Process(baseRun, child);
             }
 
             // NOTE: little file in zip can be bigger than big file. Zip compression nuance?

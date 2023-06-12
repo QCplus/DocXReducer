@@ -282,5 +282,26 @@ namespace DocxReducerTests.Core
             Assert.That.AllRunStylesDefined(par1, StyleIds);
             Assert.That.AllRunStylesDefined(par2, StyleIds);
         }
+
+        [TestMethod]
+        public void Process_AllProofErrorsWereRemoved()
+        {
+            var par = Process(@"
+                <w:p xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"">
+                  <w:r>
+                    <w:t xml:space=""preserve"">TEST TEXT </w:t>
+                  </w:r>
+                  <w:proofErr w:type=""spellStart"" />
+                  <w:r>
+                    <w:t>INVALID TEXT</w:t>
+                  </w:r>
+                  <w:proofErr w:type=""spellEnd"" />
+                  <w:r>
+                    <w:t>, TEST TEXT</w:t>
+                  </w:r>
+                </w:p>");
+
+            Assert.IsTrue(!par.Elements<ProofError>().Any(), "ProofErrors must be removed");
+        }
     }
 }
