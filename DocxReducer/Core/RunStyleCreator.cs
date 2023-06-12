@@ -64,10 +64,10 @@ namespace DocxReducer.Core
         /// <returns></returns>
         internal string GenerateStyleId(int runPropertiesHash)
         {
-            var styleId = $"s{runPropertiesHash.GetLastNDigits(2)}";
+            if (_globalRunStylesIds.TryGetValue(runPropertiesHash, out string styleId))
+                return styleId;
 
-            if (_globalRunStylesIds.TryGetValue(runPropertiesHash, out string prevStyleId))
-                return prevStyleId;
+            styleId = $"s{runPropertiesHash.GetLastNDigits(2)}";
 
             var createdStylesIds = DocStyles.Descendants<Style>().Where(t => t.StyleId.HasValue).Select(t => t.StyleId.Value);
             while (createdStylesIds.Contains(styleId))
