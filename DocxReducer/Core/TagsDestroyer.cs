@@ -5,7 +5,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace DocxReducer.Core
 {
-    internal class TagDestroyer
+    internal class TagsDestroyer
     {
         public void RemoveBookmarks(WordprocessingDocument docx)
         {

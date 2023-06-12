@@ -16,7 +16,7 @@ namespace DocxReducer
 
         public bool CreateNewStyles { get; set; }
 
-        private TagDestroyer TagDestroyer { get; }
+        private TagsDestroyer TagDestroyer { get; }
 
         public Reducer(bool deleteBookmarks=true,
                        bool createNewStyles=true)
@@ -24,7 +24,7 @@ namespace DocxReducer
             DeleteBookmarks = deleteBookmarks;
             CreateNewStyles = createNewStyles;
 
-            TagDestroyer = new TagDestroyer();
+            TagDestroyer = new TagsDestroyer();
         }
 
         private Styles GetOrCreateNewDocStyles(WordprocessingDocument docx)
