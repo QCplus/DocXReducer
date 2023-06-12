@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
-
 using DocxReducer.Helpers;
 
 namespace DocxReducer.Core
 {
-    internal class RunStyleCreator
+    internal class RunStylesManager
     {
         private Styles DocStyles { get; }
 
         private Dictionary<int, string> _globalRunStylesIds = new Dictionary<int, string>();
 
-        public RunStyleCreator(Styles docStyles)
+        public RunStylesManager(Styles docStyles)
         {
             DocStyles = docStyles;
         }
@@ -65,7 +64,7 @@ namespace DocxReducer.Core
             var createdStylesIds = DocStyles.Descendants<Style>().Where(t => t.StyleId.HasValue).Select(t => t.StyleId.Value);
             int charsPoolCount = IntExtensions.CHARS_FOR_BASE_CONVERSION.Length;
 
-            for (int maxBits = 10; maxBits <= 32 ; maxBits++)
+            for (int maxBits = 10; maxBits <= 32; maxBits++)
             {
                 styleId = runPropertiesHash.TakeFirstBits(maxBits).ToBase(charsPoolCount);
 
@@ -85,7 +84,6 @@ namespace DocxReducer.Core
             {
                 StyleId = GenerateStyleId(propertiesHash),
                 Type = StyleValues.Character,
-                //CustomStyle = true,
                 StyleRunProperties = styleRunProperties
             };
         }

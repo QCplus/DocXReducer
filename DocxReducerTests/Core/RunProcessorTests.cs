@@ -29,7 +29,7 @@ namespace DocxReducerTests.Core
         {
             Styles = new Styles();
 
-            Processor = new RunProcessor(new RunStyleCreator(Styles));
+            Processor = new RunProcessor(new RunStylesManager(Styles));
         }
 
         [TestMethod]

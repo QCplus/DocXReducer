@@ -26,7 +26,7 @@ namespace DocxReducer.Core
                 throw new Exception("Document styles can't be null");
 
             RunProcessor = new RunProcessor(
-                new RunStyleCreator(docStyles));
+                new RunStylesManager(docStyles));
 
             Options = new ParagraphProcessorOptions(reducerOptions);
         }

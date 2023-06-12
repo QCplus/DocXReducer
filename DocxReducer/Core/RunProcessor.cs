@@ -11,9 +11,9 @@ namespace DocxReducer.Core
     // For every new document run processor must be new
     internal sealed class RunProcessor
     {
-        private RunStyleCreator RunStyleCreator { get; }
+        private RunStylesManager RunStyleCreator { get; }
 
-        public RunProcessor(RunStyleCreator runStyleCreator)
+        public RunProcessor(RunStylesManager runStyleCreator)
         {
             RunStyleCreator = runStyleCreator;
         }

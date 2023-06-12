@@ -13,7 +13,7 @@ namespace DocxReducerTests.Core
 
         private Styles DocStyles { get; set; }
 
-        private RunStyleCreator StyleCreator { get; set; }
+        private RunStylesManager StyleCreator { get; set; }
 
         public RunStyleCreatorTests()
         {
@@ -25,7 +25,7 @@ namespace DocxReducerTests.Core
         {
             DocStyles = new Styles();
 
-            StyleCreator = new RunStyleCreator(DocStyles);
+            StyleCreator = new RunStylesManager(DocStyles);
         }
 
         //[TestMethod]
