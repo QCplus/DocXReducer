@@ -4,7 +4,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 using DocxReducer.Core;
 
-namespace DocxReducerTests.Core
+namespace DocxReducerTests.Processors
 {
     [TestClass]
     public class RunStyleCreatorTests

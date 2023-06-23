@@ -3,10 +3,11 @@ using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
+using DocxReducer.Processors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OMath = DocumentFormat.OpenXml.Math.OfficeMath;
 
-namespace DocxReducerTests.Core
+namespace DocxReducerTests.Processors
 {
     [TestClass]
     public class ParagraphProcessorTests
@@ -28,7 +29,8 @@ namespace DocxReducerTests.Core
         public void TestInit()
         {
             StylesRoot = new Styles();
-            ParProcessor = new ParagraphProcessor(StylesRoot,
+            ParProcessor = new ParagraphProcessor(
+                new RunStylesManager(StylesRoot),
                 new DocxReducer.Options.ReducerOptions()
                 {
                     CreateNewStyles = true,

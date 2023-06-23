@@ -2,11 +2,12 @@
 using System.Runtime.CompilerServices;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
+using DocxReducer.Core;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("DocxReducerTests")]
 #endif
-namespace DocxReducer.Core
+namespace DocxReducer.Processors
 {
     // For every new document run processor must be new
     internal sealed class RunProcessor

@@ -1,7 +1,8 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DocxReducer.Core;
+using DocxReducer.DI;
 using DocxReducer.Options;
+using DocxReducer.Processors;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DocxReducer
 {
@@ -17,25 +18,13 @@ namespace DocxReducer
                 createNewStyles: createNewStyles);
         }
 
-        private Styles GetOrCreateNewDocStyles(WordprocessingDocument docx)
-        {
-            var styleDefinitions = docx.MainDocumentPart.StyleDefinitionsPart;
-
-            var styles = styleDefinitions.Styles;
-            if (styles == null)
-                styles = styleDefinitions.Styles = new Styles();
-
-            return styles;
-        }
-
         public void Reduce(WordprocessingDocument docx)
         {
             var docRoot = docx.MainDocumentPart.RootElement;
 
-            var styles = GetOrCreateNewDocStyles(docx);
+            var servicesProvider = ServicesFactory.CreateServiceProvider(docx, Options);
 
-            // For every new document paragraph processor must be new
-            new ParagraphProcessor(styles, Options).ProcessAllParagraphs(docRoot);
+            servicesProvider.GetService<ParagraphProcessor>().ProcessAllParagraphs(docRoot);
         }
 
         public WordprocessingDocument Reduce(string pathToFile)

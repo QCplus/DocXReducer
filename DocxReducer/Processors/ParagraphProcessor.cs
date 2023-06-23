@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Runtime.CompilerServices;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocxReducer.Core;
 using DocxReducer.Options;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("DocxReducerTests")]
 #endif
-namespace DocxReducer.Core
+namespace DocxReducer.Processors
 {
     /// <summary>
     /// For every new document paragraph processor must be new
@@ -20,13 +20,9 @@ namespace DocxReducer.Core
 
         private ParagraphProcessorOptions Options { get; }
 
-        public ParagraphProcessor(Styles docStyles, ReducerOptions reducerOptions)
+        public ParagraphProcessor(RunStylesManager runStylesManager, ReducerOptions reducerOptions)
         {
-            if (docStyles == null)
-                throw new Exception("Document styles can't be null");
-
-            RunProcessor = new RunProcessor(
-                new RunStylesManager(docStyles));
+            RunProcessor = new RunProcessor(runStylesManager);
 
             Options = new ParagraphProcessorOptions(reducerOptions);
         }

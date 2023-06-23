@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocxReducer.Core;
+using DocxReducer.Processors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using DocumentFormat.OpenXml.Wordprocessing;
-
-using DocxReducer.Core;
-
-namespace DocxReducerTests.Core
+namespace DocxReducerTests.Processors
 {
     [TestClass]
     public class RunProcessorTests
