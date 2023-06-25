@@ -32,8 +32,11 @@ namespace DocxReducer.DI
                 .AddSingleton<RunStylesManager>(new RunStylesManager(GetOrCreateNewDocStyles(mainDocumentPart)))
                 .AddProcessor<Run>(sp => new RunsProcessor())
                 .AddProcessor<Paragraph>(sp => new ParagraphsProcessor())
+
                 .AddProcessor<BookmarkStart>(RemoveProcessor.Instance)
                 .AddProcessor<BookmarkEnd>(RemoveProcessor.Instance)
+                .AddProcessor<ProofError>(RemoveProcessor.Instance)
+
                 .BuildServiceProvider();
         }
     }
