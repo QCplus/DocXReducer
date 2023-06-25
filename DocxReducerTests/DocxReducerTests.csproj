@@ -18,4 +18,10 @@
     <ProjectReference Include="..\DocxReducer\DocxReducer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Content\Empty.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

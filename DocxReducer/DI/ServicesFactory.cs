@@ -1,17 +1,22 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using System.Runtime.CompilerServices;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
+using DocxReducer.Extensions;
 using DocxReducer.Options;
 using DocxReducer.Processors;
 using Microsoft.Extensions.DependencyInjection;
 
+#if DEBUG
+[assembly: InternalsVisibleTo("DocxReducerTests")]
+#endif
 namespace DocxReducer.DI
 {
     internal static class ServicesFactory
     {
-        private static Styles GetOrCreateNewDocStyles(WordprocessingDocument docx)
+        private static Styles GetOrCreateNewDocStyles(MainDocumentPart mainDocumentPart)
         {
-            var styleDefinitions = docx.MainDocumentPart.StyleDefinitionsPart;
+            var styleDefinitions = mainDocumentPart.StyleDefinitionsPart;
 
             var styles = styleDefinitions.Styles;
             if (styles == null)
@@ -20,12 +25,13 @@ namespace DocxReducer.DI
             return styles;
         }
 
-        public static ServiceProvider CreateServiceProvider(WordprocessingDocument docx, ReducerOptions reducerOptions)
+        public static ServiceProvider CreateServiceProvider(MainDocumentPart mainDocumentPart, ReducerOptions reducerOptions)
         {
             return new ServiceCollection()
                 .AddSingleton(reducerOptions)
-                .AddSingleton<RunStylesManager>(new RunStylesManager(GetOrCreateNewDocStyles(docx)))
-                .AddSingleton<ParagraphProcessor>()
+                .AddSingleton<RunStylesManager>(new RunStylesManager(GetOrCreateNewDocStyles(mainDocumentPart)))
+                .AddProcessor<Run>(sp => new RunsProcessor())
+                .AddProcessor<Paragraph>(sp => new ParagraphsProcessor())
                 .BuildServiceProvider();
         }
     }
