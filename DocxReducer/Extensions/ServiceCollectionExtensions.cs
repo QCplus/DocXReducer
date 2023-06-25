@@ -5,12 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DocxReducer.Extensions
 {
-    public static class ServiceCollectionExtensions
+    internal static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddProcessor<T>(this IServiceCollection services, Func<IServiceProvider, IElementsProcessor> factory)
             where T : OpenXmlElement
         {
             return services.AddSingleton(typeof(T), implementationFactory: factory);
+        }
+
+        public static IServiceCollection AddProcessor<T>(this IServiceCollection services, IElementsProcessor instance)
+        {
+            return services.AddSingleton(typeof(T), sp => instance);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace DocxReducer.Processors.Abstract
 {
-    public interface IElementsProcessor
+    internal interface IElementsProcessor
     {
         bool NeedProcessChildren(OpenXmlElement element);
 

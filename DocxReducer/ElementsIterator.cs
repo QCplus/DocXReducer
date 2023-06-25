@@ -25,20 +25,14 @@ namespace DocxReducer
             foreach (OpenXmlElement e in elements)
             {
                 var elementType = e.GetType();
+                var processor = _serviceProvider.GetProcessor(elementType);
 
-                if (_serviceProvider.TryGetProcessor(elementType, out IElementsProcessor processor))
-                {
-                    if (e.HasChildren && processor.NeedProcessChildren(e))
-                    {
-                        Iterate(e.ChildElements.ToList());
-                    }
-
-                    processor.Process(e);
-                }
-                else if (e.HasChildren)
+                if (e.HasChildren && processor.NeedProcessChildren(e))
                 {
                     Iterate(e.ChildElements.ToList());
                 }
+
+                processor.Process(e);
             }
         }
 
