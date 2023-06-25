@@ -90,6 +90,8 @@ namespace DocxReducer.Processors
             {
                 MergeIfNeeded(run, (Run)element);
             }
+
+            element.ClearAllAttributes();
         }
 
         public bool NeedProcessChildren(OpenXmlElement element) => true;
