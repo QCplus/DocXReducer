@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DocumentFormat.OpenXml;
 using DocxReducer.Extensions;
-using DocxReducer.Processors.Abstract;
-using Microsoft.Extensions.DependencyInjection;
 
 #if DEBUG
 [assembly: InternalsVisibleTo("DocxReducerTests")]
@@ -13,9 +12,9 @@ namespace DocxReducer
 {
     internal class ElementsIterator
     {
-        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        private ElementsIterator(ServiceProvider serviceProvider)
+        private ElementsIterator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -36,7 +35,7 @@ namespace DocxReducer
             }
         }
 
-        public static void Iterate(ServiceProvider serviceProvider, List<OpenXmlElement> elements)
+        public static void Iterate(IServiceProvider serviceProvider, List<OpenXmlElement> elements)
         {
             new ElementsIterator(serviceProvider).Iterate(elements);
         }

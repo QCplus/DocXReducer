@@ -29,9 +29,10 @@ namespace DocxReducer.DI
         {
             return new ServiceCollection()
                 .AddSingleton(reducerOptions)
-                .AddSingleton<RunStylesManager>(new RunStylesManager(GetOrCreateNewDocStyles(mainDocumentPart)))
+                .AddSingleton<StylesManager>(new StylesManager(GetOrCreateNewDocStyles(mainDocumentPart)))
                 .AddProcessor<Run>(sp => new RunsProcessor())
                 .AddProcessor<Paragraph>(sp => new ParagraphsProcessor())
+                .AddProcessor<RunProperties>(sp => new RunPropertiesProcessor(sp.GetService<StylesManager>()))
 
                 .AddProcessor<BookmarkStart>(RemoveProcessor.Instance)
                 .AddProcessor<BookmarkEnd>(RemoveProcessor.Instance)

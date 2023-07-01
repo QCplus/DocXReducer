@@ -81,9 +81,6 @@ namespace DocxReducer.Processors
 
         public void Process(OpenXmlElement element)
         {
-            if (!(element is Run))
-                throw new System.Exception($"OpenXmlElement type should be {nameof(Run)}");
-
             OpenXmlElement previousSibling = element.PreviousSibling();
 
             if (previousSibling != null && previousSibling is Run run)

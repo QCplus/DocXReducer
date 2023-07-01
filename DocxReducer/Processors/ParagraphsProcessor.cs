@@ -14,9 +14,6 @@ namespace DocxReducer.Processors
 
         public void Process(OpenXmlElement element)
         {
-            if (element.GetType() != typeof(Paragraph))
-                throw new System.Exception($"OpenXmlElement should be {nameof(Paragraph)}");
-
             var par = (Paragraph)element;
 
             par.ClearAllAttributes();
