@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Extensions;
 using DocxReducer.Helpers;
@@ -22,11 +23,25 @@ namespace DocxReducer.Core
 
         private readonly HashSet<string> _docStyleIds;
 
-        public StylesManager(Styles docStyles)
+        private static Styles GetOrCreateNewDocStyles(MainDocumentPart mainDocumentPart)
         {
-            DocStyles = docStyles;
+            var styleDefinitions = mainDocumentPart.StyleDefinitionsPart;
+
+            var styles = styleDefinitions.Styles;
+            if (styles == null)
+                styles = styleDefinitions.Styles = new Styles();
+
+            return styles;
+        }
+
+        public StylesManager(Styles styles)
+        {
+            DocStyles = styles;
             _docStyleIds = new HashSet<string>(DocStyles.Descendants<Style>().Where(t => t.StyleId.HasValue).Select(t => t.StyleId.Value));
         }
+
+        public StylesManager(MainDocumentPart mainDocumentPart) : this(GetOrCreateNewDocStyles(mainDocumentPart))
+        { }
 
         private int GetHash(OpenXmlElement properties)
         {

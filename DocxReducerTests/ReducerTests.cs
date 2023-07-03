@@ -281,9 +281,8 @@ namespace DocxReducerTests
                 </w:p>";
 
             var doc = Reduce(bodyInnerXml: xml + xml);
-            var styles = doc.MainDocumentPart.StyleDefinitionsPart.Styles;
 
-            Assert.That.HaveCustomStyles(styles, expectedStylesCount: 2);
+            Assert.That.HaveCustomStyles(doc, expectedStylesCount: 2);
             Assert.That.AllRunStylesDefined(doc);
         }
 

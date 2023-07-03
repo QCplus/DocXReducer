@@ -23,10 +23,12 @@ namespace DocxReducerTests
             }
         }
 
-        public static void HaveCustomStyles(this Assert assert, Styles styles, int expectedStylesCount)
+        public static void HaveCustomStyles(this Assert assert, WordprocessingDocument doc, int expectedStylesCount)
         {
+            var styles = doc.MainDocumentPart.StyleDefinitionsPart.Styles;
+
             Assert.AreEqual(expectedStylesCount,
-                styles.Elements<Style>().Where(s => s.Default == false).Count());
+                styles.Elements<Style>().Where(s => !(s.Default ?? false)).Count());
         }
     }
 }
