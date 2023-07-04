@@ -2,14 +2,16 @@
 {
     public class ReducerOptions
     {
-        public bool DeleteBookmarks { get; }
+        public bool DeleteBookmarks { get; } = true;
 
-        public bool CreateNewStyles { get; }
+        public bool CreateNewStyles { get; } = true;
 
         public ReducerOptions(bool deleteBookmarks, bool createNewStyles)
         {
             DeleteBookmarks = deleteBookmarks;
             CreateNewStyles = createNewStyles;
         }
+
+        public ReducerOptions() { }
     }
 }

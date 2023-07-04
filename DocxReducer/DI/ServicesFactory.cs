@@ -19,12 +19,13 @@ namespace DocxReducer.DI
             return new ServiceCollection()
                 .AddSingleton(reducerOptions)
                 .AddSingleton<StylesManager>(new StylesManager(mainDocumentPart))
+
                 .AddProcessor<Run>(sp => new RunsProcessor())
                 .AddProcessor<Paragraph>(sp => new ParagraphsProcessor())
                 .AddProcessor<RunProperties>(sp => new RunPropertiesProcessor(sp.GetService<StylesManager>()))
 
-                .AddProcessor<BookmarkStart>(RemoveProcessor.Instance)
-                .AddProcessor<BookmarkEnd>(RemoveProcessor.Instance)
+                .AddProcessor<BookmarkStart>(sp => new BookmarksProcessor(sp.GetService<ReducerOptions>()))
+                .AddProcessor<BookmarkEnd>(sp => new BookmarksProcessor(sp.GetService<ReducerOptions>()))
                 .AddProcessor<ProofError>(RemoveProcessor.Instance)
 
                 .BuildServiceProvider();

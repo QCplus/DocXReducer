@@ -4,6 +4,7 @@ using System.Linq;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer;
+using DocxReducer.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OMath = DocumentFormat.OpenXml.Math.OfficeMath;
 
@@ -32,25 +33,27 @@ namespace DocxReducerTests
             return docx;
         }
 
-        private WordprocessingDocument Reduce(WordprocessingDocument docx)
+        private WordprocessingDocument Reduce(WordprocessingDocument docx, ReducerOptions options = null)
         {
-            var reducer = new Reducer();
+            var reducer = new Reducer(options == null ? new ReducerOptions() : options);
 
             reducer.Reduce(docx);
 
             return docx;
         }
 
-        private WordprocessingDocument Reduce(string bodyInnerXml)
+        private WordprocessingDocument Reduce(string bodyInnerXml, ReducerOptions options = null)
         {
             return Reduce(
-                CreateDoc(bodyInnerXml));
+                CreateDoc(bodyInnerXml),
+                options);
         }
 
-        private Body ReduceReturnBody(string bodyInnerXml)
+        private Body ReduceReturnBody(string bodyInnerXml, ReducerOptions options = null)
         {
             return (Body)Reduce(
-                bodyInnerXml
+                bodyInnerXml,
+                options
                 ).MainDocumentPart.RootElement.FirstChild;
         }
 
@@ -345,6 +348,29 @@ namespace DocxReducerTests
             Assert.AreEqual(1, par.Descendants<Text>().Count());
             Assert.AreEqual(1, par.Descendants<Run>().Count());
             Assert.AreEqual("TEST text", par.InnerText);
+        }
+
+        [TestMethod]
+        public void Reduce_IgnoreBookmarksIfOptionSpecified()
+        {
+            var xml = @"
+                <w:p w14:paraId=""0334E79D"" w14:textId=""1C39F1F7"" xmlns:w14=""http://schemas.microsoft.com/office/word/2010/wordml"">
+                  <w:bookmarkStart w:name=""_Toc517125172"" w:id=""13"" />
+                  <w:bookmarkStart w:name=""_Toc517125298"" w:id=""14"" />
+                  <w:r>
+                    <w:t>TEXT</w:t>
+                  </w:r>
+                  <w:bookmarkEnd w:id=""13"" />
+                  <w:bookmarkEnd w:id=""14"" />
+                </w:p>";
+
+            var par = ReduceReturnBody(
+                bodyInnerXml: xml,
+                new ReducerOptions(deleteBookmarks: false, true)
+                ).FirstChild;
+
+            Assert.AreEqual(2, par.Descendants<BookmarkStart>().Count());
+            Assert.AreEqual(2, par.Descendants<BookmarkEnd>().Count());
         }
     }
 }

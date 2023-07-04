@@ -12,13 +12,13 @@ namespace DocxReducer
 
         public ReducerOptions Options { get; set; }
 
-        public Reducer(bool deleteBookmarks = true,
-                       bool createNewStyles = true)
+        public Reducer(ReducerOptions options)
         {
-            Options = new ReducerOptions(
-                deleteBookmarks: deleteBookmarks,
-                createNewStyles: createNewStyles);
+            Options = options;
         }
+
+        public Reducer() : this(new ReducerOptions())
+        { }
 
         public void Reduce(MainDocumentPart mainDocumentPart)
         {
