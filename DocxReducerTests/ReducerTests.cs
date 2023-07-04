@@ -57,9 +57,9 @@ namespace DocxReducerTests
                 ).MainDocumentPart.RootElement.FirstChild;
         }
 
-        private Body ReduceRunsReturnBody(string parInnerXml)
+        private Body ReduceRunsReturnBody(string parInnerXml, ReducerOptions options = null)
         {
-            return ReduceReturnBody($"<w:p>{parInnerXml}</w:p>");
+            return ReduceReturnBody($"<w:p>{parInnerXml}</w:p>", options);
         }
 
         [TestMethod]
@@ -316,20 +316,24 @@ namespace DocxReducerTests
         public void Reduce_RunPropertiesWereReplacedWithStyle()
         {
             var xml = @"
-                <w:r>
-                	<w:rPr>
-                		<w:rFonts w:ascii=""Times New Roman"" w:hAnsi=""Times New Roman"" w:cs=""Times New Roman""/>
-                		<w:sz w:val=""24""/>
-                		<w:szCs w:val=""24""/>
-                		<w:lang w:val=""en-US""/>
-                	</w:rPr>
-                    <w:t>TEXT</w:t>
-                </w:r>";
+                <w:p>
+                    <w:r>
+                    	<w:rPr>
+                    		<w:rFonts w:ascii=""Times New Roman"" w:hAnsi=""Times New Roman"" w:cs=""Times New Roman""/>
+                    		<w:sz w:val=""24""/>
+                    		<w:szCs w:val=""24""/>
+                    		<w:lang w:val=""en-US""/>
+                    	</w:rPr>
+                        <w:t>TEXT</w:t>
+                    </w:r>
+                </w:p>";
 
-            var run = (Run)ReduceRunsReturnBody(xml).FirstChild.FirstChild;
+            var doc = Reduce(bodyInnerXml: xml);
+            var run = doc.MainDocumentPart.RootElement.Descendants<Run>().First();
 
-            Assert.IsNotNull(run.RunProperties.RunStyle, "Run properies should have style");
+            Assert.IsNotNull(run.RunProperties.RunStyle, "Run properties should have style");
             Assert.IsTrue(run.RunProperties.ChildElements.Count == 1);
+            Assert.That.HaveCustomStyles(doc, 1);
         }
 
         [TestMethod]
@@ -343,7 +347,7 @@ namespace DocxReducerTests
                         <w:t xml:space=""preserve""> text</w:t>
                     </w:r>";
             
-            var par = ReduceRunsReturnBody(xml).FirstChild;
+            var par = ReduceRunsReturnBody(parInnerXml: xml).FirstChild;
 
             Assert.AreEqual(1, par.Descendants<Text>().Count());
             Assert.AreEqual(1, par.Descendants<Run>().Count());
@@ -371,6 +375,32 @@ namespace DocxReducerTests
 
             Assert.AreEqual(2, par.Descendants<BookmarkStart>().Count());
             Assert.AreEqual(2, par.Descendants<BookmarkEnd>().Count());
+        }
+
+        [TestMethod]
+        public void Reduce_DontCreateStylesIfOptionSpecified()
+        {
+            var xml = @"
+                <w:p>
+					<w:r>
+						<w:rPr>
+							<w:rFonts w:ascii=""Times New Roman"" w:hAnsi=""Times New Roman"" w:cs=""Times New Roman""/>
+							<w:sz w:val=""24""/>
+							<w:szCs w:val=""24""/>
+							<w:lang w:val=""en-US""/>
+						</w:rPr>
+						<w:t>THIS IS</w:t>
+					</w:r>
+                </w:p>";
+
+            var doc = Reduce(
+                bodyInnerXml: xml,
+                new ReducerOptions(deleteBookmarks: true, createNewStyles: false)
+                );
+            var run = doc.MainDocumentPart.RootElement.Descendants<Run>().First();
+
+            Assert.AreEqual(4, run.RunProperties.ChildElements.Count);
+            Assert.That.HaveCustomStyles(doc, 0);
         }
     }
 }

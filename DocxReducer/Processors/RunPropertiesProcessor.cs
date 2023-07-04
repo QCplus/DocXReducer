@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocxReducer.Core;
 using DocxReducer.Helpers;
+using DocxReducer.Options;
 using DocxReducer.Processors.Abstract;
 
 namespace DocxReducer.Processors
@@ -12,9 +13,12 @@ namespace DocxReducer.Processors
     {
         private readonly StylesManager _stylesManager;
 
-        public RunPropertiesProcessor(StylesManager stylesManager)
+        private readonly ReducerOptions _options;
+
+        public RunPropertiesProcessor(StylesManager stylesManager, ReducerOptions options)
         {
             _stylesManager = stylesManager;
+            _options = options;
         }
 
         public bool NeedProcessChildren(OpenXmlElement element) => false;
@@ -39,7 +43,7 @@ namespace DocxReducer.Processors
             if (rPr.Elements<RunStyle>().Any())
                 return;
 
-            if (_stylesManager.IsStyleReplacementWorthIt(rPr))
+            if (_options.CreateNewStyles && _stylesManager.IsStyleReplacementWorthIt(rPr))
                 ReplaceRunPropertiesWithStyle(rPr);
         }
     }

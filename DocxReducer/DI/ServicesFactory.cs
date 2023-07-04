@@ -22,7 +22,7 @@ namespace DocxReducer.DI
 
                 .AddProcessor<Run>(sp => new RunsProcessor())
                 .AddProcessor<Paragraph>(sp => new ParagraphsProcessor())
-                .AddProcessor<RunProperties>(sp => new RunPropertiesProcessor(sp.GetService<StylesManager>()))
+                .AddProcessor<RunProperties>(sp => new RunPropertiesProcessor(sp.GetService<StylesManager>(), sp.GetService<ReducerOptions>()))
 
                 .AddProcessor<BookmarkStart>(sp => new BookmarksProcessor(sp.GetService<ReducerOptions>()))
                 .AddProcessor<BookmarkEnd>(sp => new BookmarksProcessor(sp.GetService<ReducerOptions>()))
