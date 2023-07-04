@@ -14,17 +14,6 @@ namespace DocxReducer.DI
 {
     internal static class ServicesFactory
     {
-        private static Styles GetOrCreateNewDocStyles(MainDocumentPart mainDocumentPart)
-        {
-            var styleDefinitions = mainDocumentPart.StyleDefinitionsPart;
-
-            var styles = styleDefinitions.Styles;
-            if (styles == null)
-                styles = styleDefinitions.Styles = new Styles();
-
-            return styles;
-        }
-
         public static ServiceProvider CreateServiceProvider(MainDocumentPart mainDocumentPart, ReducerOptions reducerOptions)
         {
             return new ServiceCollection()
