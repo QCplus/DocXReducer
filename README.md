@@ -1,42 +1,34 @@
 # DocXReducer
 
-**DocXReducer** is a library for reducing size of Word documents **(.docx)** by simplifying theirs XML
+**DocXReducer** is a library for reducing size of Word documents **(.docx)** by simplifying theirs XML. Consider using it for archived documents, because after reducing some Word functions may not work correctly
 
-This library uses only `DocumentFormat.OpenXml 2.14.0`
+This library uses only `DocumentFormat.OpenXml`
 
-## Usage
+## Get Started
 
-There are two ways of using reducer:
+Install package `DocxReducer` with the Nuget package manager or the CLI
 
-- with a file name
+```
+dotnet add package DocxReducer
+```
+
+Then with the class
 ```cs
 var reducer = new Reducer();
+```
+
+it's possible to process a document by path
+
+```cs
 reducer.Reduce(@".\Document.docx");
 ```
 
-- or with a WordprocessingDocument class
+or with a WordprocessingDocument class
 ```cs
-var inputFilePath = @".\Document.docx";
-
-var docx = WordprocessingDocument.Open(inputFilePath, true);
-
-var reducer = new Reducer();
+var docx = WordprocessingDocument.Open(@".\Document.docx", true);
 
 reducer.Reduce(docx);
 ```
-
-## Constructor options
-
-`Reducer` class has some options
-```cs
-public Reducer(bool deleteBookmarks=true,
-               bool createNewStyles=true)
-```
-
-| Name | Default value | Description | Notes |
-|-----------------| ----- | ------------------ | ------------------ |
-| deleteBookmarks | true | Delete or not bookmarks in the document | ... |
-| createNewStyles | true | Replace run properties with styles or not | In some cases file can be bigger with `true` |
 
 ## Build console app
 
