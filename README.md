@@ -2,6 +2,8 @@
 
 **DocXReducer** is a library for reducing size of Word documents **(.docx)** by simplifying theirs XML. Consider using it for archived documents, because after reducing some Word functions may not work correctly
 
+Test on [XMLFileFormatsGuide.docx](https://github.com/QCplus/DocXReducer/blob/c974630f19d5ca430a881a89f13dd6917b47cba2/TestFiles/XMLFileFormatsGuide.docx) shows `15%` size decreasing
+
 This library uses only `DocumentFormat.OpenXml`
 
 ## Get Started
